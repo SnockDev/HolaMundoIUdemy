@@ -1,6 +1,0 @@
-alejandro
-eE8g9-Q5XJDiUz-
-
-
-coneccion mongodb
-mongodb+srv://alejandro:eE8g9-Q5XJDiUz-@miapp.r24u1qg.mongodb.net/?retryWrites=true&w=majority
