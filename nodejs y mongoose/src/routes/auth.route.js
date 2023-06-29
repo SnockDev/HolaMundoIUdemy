@@ -4,10 +4,8 @@ import { postUser,getUser,getUsers,updateUser,deleteUser } from "../controller/a
 
 export const router=Router()
 
-router.get('/user',(req,res)=>{
-    res.send('obteniendo usuario')
-})
-router.get('user',getUser)
+router.get('/user/:id',getUser,)
+router.get('/users',getUsers)
 router.post('/register',postUser)
-router.patch('user',updateUser)
-router.delete('user',deleteUser)
+router.put('/user/:id',updateUser)
+router.delete('/user/:id',deleteUser)
