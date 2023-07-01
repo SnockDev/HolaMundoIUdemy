@@ -4,6 +4,8 @@ import expressjwt from "express-jwt";
 import bcrypt from "bcrypt";
 import { User } from "../user.js";
 
+const signToken=_id=> jsonwebtoken.sign({_id},'mi string secreto')
+
 export const postUser = async (req, res) => {
   try {
     const {body}=req
@@ -14,7 +16,8 @@ export const postUser = async (req, res) => {
     const hashed=await bcrypt.hash(body.password,salt)
     const user=new User({ email: body.email, password: hashed, salt: salt })
     await user.save()
-    res.send({"_id":user._id})
+    const signed=signToken({_id:user._id})
+    res.status(201).send(signed)
   } catch (error) {
     res.send(error);
   }
@@ -78,3 +81,17 @@ export const updateUser = async (req, res) => {
   }
   
 };
+
+export const login=async (req,res)=>{
+  try {
+    const {body}=req
+    const user=await User.findOne({email:body.email})
+    if(!user) return res.status(400).send('usuario y/o contrase;a incorrecta')
+    const isMatch=await bcrypt.compare(body.password,user.password)
+    const sign=signToken(user._id)
+    if (!isMatch)return res.send(400).send('usuario y/o contrase;a incorrecta')
+    res.status(200).send(sign)
+  } catch (error) {
+    res.send(error)
+  }
+}
