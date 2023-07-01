@@ -1,10 +1,17 @@
 import express from "express";
 import jsonwebtoken from "jsonwebtoken";
-import expressjwt from "express-jwt";
+import { expressjwt } from "express-jwt";
 import bcrypt from "bcrypt";
 import { User } from "../user.js";
 
-const signToken=_id=> jsonwebtoken.sign({_id},'mi string secreto')
+const secret = process.env.SECRET;
+
+const signToken=_id=> jsonwebtoken.sign({_id},secret)
+const validatejwt=expressjwt({
+  secret: secret,
+  algorithms: ['HS256'],
+});
+
 
 export const postUser = async (req, res) => {
   try {
@@ -63,13 +70,13 @@ export const updateUser = async (req, res) => {
   
     const salt = await bcrypt.genSalt();
     const hashed = await bcrypt.hash(body.password, salt);
-  
+    
     const documentoActualizado = await User.findByIdAndUpdate(
       { _id: id },
       { email: body.email, password: hashed, salt: salt },
       { new: true }
     );
-  
+    
     if (!documentoActualizado) {
       return res.status(400).send({ message: "Error al actualizar el usuario" });
     }
@@ -89,9 +96,22 @@ export const login=async (req,res)=>{
     if(!user) return res.status(400).send('usuario y/o contrase;a incorrecta')
     const isMatch=await bcrypt.compare(body.password,user.password)
     const sign=signToken(user._id)
-    if (!isMatch)return res.send(400).send('usuario y/o contrase;a incorrecta')
+    if (!isMatch)return res.status(400).send('usuario y/o contrase;a incorrecta')
     res.status(200).send(sign)
   } catch (error) {
     res.send(error)
   }
 }
+
+const findAndAsignUser=async(req,res,next)=>{
+  try {
+    const user=await User.findById(req.auth._id._id)
+    if(!user)return res.sendStatus(401).end()
+    req.user=user
+    console.log(user);
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+export const isAuthenticated = express.Router().use(validatejwt, findAndAsignUser)
