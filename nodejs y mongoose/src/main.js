@@ -2,8 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import {router} from "./routes/auth.route.js"
 
+const mconnect = process.env.mconnect;
+
 const app = express();
-mongoose.connect("mongodb+srv://Alejandro:11232628@cluster0.p6g5lfh.mongodb.net/?retryWrites=true&w=majority");
+mongoose.connect(mconnect);
 
 app.use(express.json());
 
